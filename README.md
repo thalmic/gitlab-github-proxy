@@ -27,6 +27,14 @@ docker build -t glghproxy .
 docker run -p 80:8080 glghproxy
 ```
 
+If you use docker-compose you can easily build and start services
+
+```bash
+# Edit docker-compose.yml and configure gitlabUrl for your environment
+docker-compose build  # Build the image
+docker-compose up -d  # Start services
+```
+
 For the hostname (ie. `glghproxy`) you'll need to add a DNS entry or a `/etc/hosts` override.
 However the latter will only work if glghproxy, JIRA, and the browser are operating on the same machine.
 That can be nice for testing, (e.g., with a locally installed [containerized] trial version of JIRA) but

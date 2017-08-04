@@ -1,17 +1,6 @@
-FROM anapsix/alpine-java:8_jdk_unlimited
+FROM anapsix/alpine-java:8_jdk_unlimited as builder
 
-WORKDIR /home/app
-
-# install dumb-init; helps dockerized java handle signals properly
-# using ADD avoids installing openssl dependency
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.1.3/dumb-init_1.1.3_amd64 /usr/bin/dumb-init
-RUN chmod +x /usr/bin/dumb-init
-ENTRYPOINT ["dumb-init", "--"]
-
-# process will run as non-root `app` user
-RUN addgroup app \
-		&& adduser -s /bin/bash -D app -G app \
-		&& chown -R app:app .
+WORKDIR /src
 
 # install maven
 RUN wget http://mirrors.ocf.berkeley.edu/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
@@ -20,9 +9,21 @@ RUN wget http://mirrors.ocf.berkeley.edu/apache/maven/maven-3/3.3.9/binaries/apa
 
 COPY . ./
 
-USER app
+# start with spring boot
+RUN apache-maven-3.3.9/bin/mvn package
+
+
+##################
+FROM anapsix/alpine-java:8_jdk_unlimited
+
+WORKDIR /app
+USER nobody
+
+# install dumb-init; helps dockerized java handle signals properly
+# using ADD avoids installing openssl dependency
+COPY --from=builder /src/target/glghproxy-0.0.1-SNAPSHOT.war /app/glfhproxy.war
 
 EXPOSE 8080
 
 # start with spring boot
-CMD apache-maven-3.3.9/bin/mvn spring-boot:run -DgitlabUrl="$GITLAB_URL"
+CMD java -jar glfhproxy.war -DgitlabUrl="$GITLAB_URL"

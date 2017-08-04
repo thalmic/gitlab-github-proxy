@@ -1,0 +1,10 @@
+---
+version: "3"
+services:
+  gl-gh-proxy:
+    build: ./
+    image: ${image_name}
+    ports:
+      - 80:8080
+    environment:
+      - gitlabUrl

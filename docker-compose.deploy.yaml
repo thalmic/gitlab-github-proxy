@@ -1,0 +1,17 @@
+---
+version: "3"
+services:
+  gl-gh-proxy:
+    build: ./
+    ports:
+      - 80:8080
+    environment:
+      gitlabUrl: gitlab.example.com
+   networks:
+      - router_frontends
+   deploy:
+    labels:
+      - ingress=true
+      - ingress.dnsname=gitlab-github-proxy.thalmiclabs.com
+      - ingress.targetport=443
+      - ingress.tls=true
